@@ -5,11 +5,22 @@ runs:
   steps:
     - shell: bash
       run: |
-        wget -qO cdie.zip "https://github.com/horsicq/CDiE/releases/download/Beta/cdie_ubuntu24_amd64_4.0.0.zip"
-        unzip -q cdie.zip -d cdie_dir
+        wget -O cdie.zip "https://github.com/horsicq/CDiE/releases/download/Beta/cdie_ubuntu24_amd64_4.0.0.zip"
+        unzip cdie.zip -d cdie_dir
         
-        BIN_DIR=$(dirname $(find $(pwd)/cdie_dir -name "cdie" -type f | head -n 1))
+        ls -laR cdie_dir
         
-        chmod +x "$BIN_DIR/cdie"
+        BIN_FILE=$(find $(pwd)/cdie_dir -type f \( -name "cdie*" -o -name "diec*" \) | head -n 1)
+        
+        if [ -z "$BIN_FILE" ]; then
+          exit 1
+        fi
+        
+        BIN_DIR=$(dirname "$BIN_FILE")
+        chmod +x "$BIN_FILE"
+        
+        if [ "$(basename "$BIN_FILE")" != "cdie" ]; then
+          ln -s "$BIN_FILE" "$BIN_DIR/cdie"
+        fi
         
         echo "$BIN_DIR" >> $GITHUB_PATH
